@@ -1,14 +1,56 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Myapp</title>
-  <%= stylesheet_link_tag    'default', media: 'all', 'data-turbolinks-track' => true %>
-  <%= javascript_include_tag 'default', 'data-turbolinks-track' => true %>
-  <%= csrf_meta_tags %>
-</head>
-<body>
+	<title>Myapp</title>
+	<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.5/angular.min.js"></script>
+	<%= stylesheet_link_tag    'default', media: 'all', 'data-turbolinks-track' => true %>
+	<%= javascript_include_tag 'default', 'data-turbolinks-track' => true %>
+	<%= csrf_meta_tags %>
 
-<%= yield %>
+	<style>
+
+		body {
+			margin: 20px;
+			font-size: 16px;
+			font-family: "Open Sans",serif;
+		}
+	</style>
+
+	<script type="text/javascript">
+		angular.module('myapp',[])
+		.factory('cities', ['$http',function($http){
+
+			return{
+				getCities : function() {
+					return $http({
+						url: '/cities.json',
+						method: 'GET'
+					})
+				}
+			}
+
+		}])
+		.controller('myCtrl',['$scope','cities',function($scope,cities){
+
+			$scope.cities ;
+			$scope.getdata = function(){
+				cities.getCities().success(function(data){
+					console.log(data);
+					$scope.cities=data;
+				});
+			};
+
+
+		}]);
+
+
+	</script>
+</head>
+<body ng-app='myapp'>
+	
+
+	<%= yield %>
 
 </body>
 </html>
