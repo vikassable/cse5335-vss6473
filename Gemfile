@@ -48,5 +48,8 @@ gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 # Heroki gems
 gem 'rails_12factor', group: :production
 
+# json response
+gem 'responders', '~> 2.0'
+
 # ruby version
 ruby "2.2.4"
