@@ -2,8 +2,10 @@
 <html>
 <head>
 	<title>Myapp</title>
+
 	<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.5/angular.min.js"></script>
+	<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?key=&sensor=false&extension=.js"></script>
 	<%= stylesheet_link_tag    'default', media: 'all', 'data-turbolinks-track' => true %>
 	<%= javascript_include_tag 'default', 'data-turbolinks-track' => true %>
 	<%= csrf_meta_tags %>
@@ -17,7 +19,27 @@
 		}
 	</style>
 
+	<style type="text/css">
+		#map {
+			height:420px;
+			width:600px;
+		}
+		.infoWindowContent {
+			font-size:  14px !important;
+			border-top: 1px solid #ccc;
+			padding-top: 10px;
+		}
+		h2 {
+			margin-bottom:0;
+			margin-top: 0;
+		}
+
+	</style>
+
+
 	<script type="text/javascript">
+
+		
 		angular.module('myapp',[])
 		.factory('cities', ['$http',function($http){
 
@@ -38,9 +60,50 @@
 				cities.getCities().success(function(data){
 					console.log(data);
 					$scope.cities=data;
+					showmarker(data);
 				});
 			};
 
+			showmarker = function(cities){
+				
+				var mapOptions = {
+					zoom: 4,
+					center: new google.maps.LatLng(40.0000, -98.0000),
+					mapTypeId: google.maps.MapTypeId.TERRAIN
+				}
+
+				$scope.map = new google.maps.Map(document.getElementById('map'), mapOptions);
+
+				$scope.markers = [];
+
+				var infoWindow = new google.maps.InfoWindow();
+
+				var createMarker = function (info){
+
+					console.log(info);
+					var marker = new google.maps.Marker({
+						map: $scope.map,
+						//getting positive value in info.long but it is negative so doing minus operation
+						position: new google.maps.LatLng(info.lat,0-info.long),
+						title: info.name
+					});
+					marker.content = '<div class="infoWindowContent"> Population : ' + info.population + '</div>';
+
+					google.maps.event.addListener(marker, 'click', function(){
+						infoWindow.setContent('<h2>' + marker.title + '</h2>' + marker.content);
+						infoWindow.open($scope.map, marker);
+					});
+
+					$scope.markers.push(marker);
+
+				}  
+				console.log(cities.length);
+				for (i = 0; i < cities.length; i++){
+					createMarker(cities[i]);
+				}
+			}
+
+			
 
 		}]);
 
@@ -49,8 +112,9 @@
 </head>
 <body ng-app='myapp'>
 	
-
 	<%= yield %>
+
+
 
 </body>
 </html>
