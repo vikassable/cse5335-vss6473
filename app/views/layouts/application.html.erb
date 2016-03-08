@@ -6,6 +6,7 @@
 	<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.5/angular.min.js"></script>
 	<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=&sensor=false&extension=.js"></script>
+	<script type="text/javascript" src="https://d3js.org/d3.v3.min.js"></script>
 	<%= stylesheet_link_tag    'default', media: 'all', 'data-turbolinks-track' => true %>
 	<%= javascript_include_tag 'default', 'data-turbolinks-track' => true %>
 	<%= csrf_meta_tags %>
@@ -34,6 +35,31 @@
 			margin-top: 0;
 		}
 
+
+
+		.axis path,
+		.axis line {
+			fill: none;
+			stroke: black;
+			shape-rendering: crispEdges;
+		}
+		.axis text {
+			font-family: sans-serif;
+			font-size: 11px;
+		}
+
+		rect {
+			-moz-transition: all 0.3s;
+			-webkit-transition: all 0.3s;
+			-o-transition: all 0.3s;
+			transition: all 0.3s;
+		}
+		rect:hover{
+			fill: orange;
+		}
+
+
+
 	</style>
 
 
@@ -61,6 +87,8 @@
 					console.log(data);
 					$scope.cities=data;
 					showmarker(data);
+					showbarChart(data);
+
 				});
 			};
 
@@ -103,12 +131,105 @@
 				}
 			}
 
-			
+			/*************************************************/
+			showbarChart = function(cities){
+				var w = 600;
+				var h = 250;
 
-		}]);
+				var dataset = []
+
+				for(i =0; i<cities.length; i++){
+					dataset.push({
+						key: cities[i].name,
+						value: cities[i].population
+
+					});
+				}
+
+				var xScale = d3.scale.ordinal()
+				.domain(d3.range(dataset.length))
+				.rangeRoundBands([0, w], 0.05); 
+
+				var yScale = d3.scale.linear()
+				.domain([0, d3.max(dataset, function(d) {return d.value;})])
+				.range([0, h]);
+
+				var key = function(d) {
+					return d.key;
+				};
+
+				//Create SVG element
+				var svg = d3.select("#barchart")
+				.append("svg")
+				.attr("width", w)
+				.attr("height", h);
+
+				//Create bars
+				svg.selectAll("rect")
+				.data(dataset, key)
+				.enter()
+				.append("rect")
+				.attr("x", function(d, i) {
+					return xScale(i);
+				})
+				.attr("y", function(d) {
+					return h - yScale(d.value);
+				})
+				.attr("width", xScale.rangeBand())
+				.attr("height", function(d) {
+					return yScale(d.value);
+				})
+				.attr("fill", function(d) {
+					return "rgb(0, 0, " + (d.value * 10) + ")";
+				})
+
+				//Tooltip
+				.on("mouseover", function(d) {
+					//Get this bar's x/y values, then augment for the tooltip
+					var xPosition = parseFloat(d3.select(this).attr("x")) + xScale.rangeBand() / 2;
+					var yPosition = parseFloat(d3.select(this).attr("y")) + 14;
+					
+					//Update Tooltip Position & value
+					d3.select("#tooltip")
+					.style("left", xPosition + "px")
+					.style("top", yPosition + "px")
+					.select("#value")
+					.text(d.value);
+					d3.select("#tooltip").classed("hidden", false)
+				})
+				.on("mouseout", function() {
+					//Remove the tooltip
+					d3.select("#tooltip").classed("hidden", true);
+				})	;
+
+				//Create labels
+				svg.selectAll("text")
+				.data(dataset, key)
+				.enter()
+				.append("text")
+				.text(function(d) {
+					return d.key;
+				})
+				.attr("text-anchor", "middle")
+				.attr("x", function(d, i) {
+					return xScale(i) + xScale.rangeBand() / 2;
+				})
+				.attr("y", function(d) {
+					return h - yScale(d.value) + 14;
+				})
+				.attr("font-family", "sans-serif") 
+				.attr("font-size", "11px")
+				.attr("fill", "white");
+			}
 
 
-	</script>
+
+
+
+}]);
+
+
+</script>
 </head>
 <body ng-app='myapp'>
 	
