@@ -1,38 +1,47 @@
 
 <div ng-controller='myCtrl' align="center">
 	<div class="page-header">
-      <h1>WDM Project 1</h1>
-    </div>
-
-	
-	<button class="btn btn-primary" ng-click='getdata()'>Get Population</button>
-
-	<div>
-		
-		<table class="table table-striped" >
-			<thead ng-show= "cities">
-				<tr>
-					<th>#</th>
-					<th>City Name</th>
-					<th>Population</th>
-					<th>State</th>
-					<th>Nation</th>
-				</tr>
-			</thead>
-			<tbody ng-repeat="city in cities">
-				<tr>
-					<th >{{city.id}}</th>
-					<td>{{city.name}}</td>
-					<td>{{city.population}}</td>
-					<td>{{city.state}}</td>
-					<td>{{city.nation}}</td>
-				</tr>
-			
-			</tbody>
-		</table>
+		<h1>Top 10 Cities (population)</h1>
 	</div>
 
-	<div id="map"></div>
-	<div id="barchart"></div>
+	
+	<button class="btn btn-primary btn-lg" ng-hide="cities" ng-click='getdata()'>Get Population</button>
 
+	<div class="container">
+		<div class="row">
+		<div class ="col-sm-12">		
+				<table id="table-cities"  ng-show= "cities"  class="table table-striped box_shadow pull-left" style="width: 100%;" >
+					<thead>
+						<tr>
+							<th>#</th>
+							<th>City Name</th>
+							<th>Population</th>
+							<th>State</th>
+							<th>Nation</th>
+						</tr>
+					</thead>
+					<tbody >
+						<tr ng-repeat="city in cities">
+							<th >{{city.id}}</th>
+							<td>{{city.name}}</td>
+							<td>{{city.population}}</td>
+							<td>{{city.state}}</td>
+							<td>{{city.nation}}</td>
+						</tr>
+
+					</tbody>
+				</table>
+			</div>
+			
+		</div>
+
+		<div class ="row">
+			<div class="col-sm-4 pull-left box_shadow" ng-show="cities" id="map" ></div>
+			 <div class="col-sm-1" ></div>
+<div class="col-sm-6 pull-left" ng-show="cities" id="barchart"></div>
+			
+			
+
+		</div>
+	</div>
 </div>
